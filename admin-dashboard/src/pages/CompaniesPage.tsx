@@ -23,6 +23,7 @@ export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
@@ -124,6 +125,11 @@ export default function CompaniesPage() {
     resetForm();
   };
 
+  const handleViewDetails = (company: Company) => {
+    setSelectedCompany(company);
+    setDetailsDialogOpen(true);
+  };
+
   const columns: GridColDef[] = [
     {
       field: 'companyName',
@@ -131,7 +137,17 @@ export default function CompaniesPage() {
       flex: 1,
       minWidth: 200,
       renderCell: (params: GridRenderCellParams) => (
-        <Typography fontWeight="bold">{params.value}</Typography>
+        <Typography 
+          fontWeight="bold" 
+          sx={{ 
+            cursor: 'pointer', 
+            color: 'primary.main',
+            '&:hover': { textDecoration: 'underline' }
+          }}
+          onClick={() => handleViewDetails(params.row)}
+        >
+          {params.value}
+        </Typography>
       ),
     },
     { field: 'ownerName', headerName: 'اسم المالك', flex: 1, minWidth: 150 },
@@ -306,6 +322,131 @@ export default function CompaniesPage() {
             }}
           >
             {editMode ? 'تحديث' : 'إنشاء'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* نافذة تفاصيل الشركة */}
+      <Dialog 
+        open={detailsDialogOpen} 
+        onClose={() => setDetailsDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        dir="rtl"
+      >
+        <DialogTitle sx={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          fontWeight: 'bold'
+        }}>
+          تفاصيل الشركة
+        </DialogTitle>
+        <DialogContent sx={{ mt: 3 }}>
+          {selectedCompany && (
+            <Box>
+              {/* معلومات الشركة */}
+              <Paper elevation={2} sx={{ p: 3, mb: 3, bgcolor: '#f8f9fa' }}>
+                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
+                  📋 معلومات الشركة
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">اسم الشركة</Typography>
+                    <Typography variant="body1" fontWeight="bold">{selectedCompany.companyName}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">الحالة</Typography>
+                    <Chip 
+                      label={selectedCompany.isActive ? 'نشط' : 'معطل'} 
+                      color={selectedCompany.isActive ? 'success' : 'error'}
+                      size="small"
+                      sx={{ fontWeight: 'bold', mt: 0.5 }}
+                    />
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">تاريخ الإنشاء</Typography>
+                    <Typography variant="body1">
+                      {new Date(selectedCompany.createdAt).toLocaleString('ar-EG', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">معرّف الشركة</Typography>
+                    <Typography variant="body1" sx={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
+                      {selectedCompany.id}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Paper>
+
+              {/* معلومات المالك */}
+              <Paper elevation={2} sx={{ p: 3, mb: 3, bgcolor: '#f8f9fa' }}>
+                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
+                  👤 معلومات المالك
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">الاسم</Typography>
+                    <Typography variant="body1" fontWeight="bold">{selectedCompany.ownerName}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">البريد الإلكتروني</Typography>
+                    <Typography variant="body1">{selectedCompany.ownerEmail}</Typography>
+                  </Box>
+                </Box>
+              </Paper>
+
+              {/* معلومات الاشتراك */}
+              <Paper elevation={2} sx={{ p: 3, bgcolor: '#f8f9fa' }}>
+                <Typography variant="h6" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
+                  💳 معلومات الاشتراك
+                </Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">نوع الاشتراك</Typography>
+                    <Chip 
+                      label={selectedCompany.subscriptionPlan || 'Basic'} 
+                      color="primary"
+                      size="small"
+                      sx={{ fontWeight: 'bold', mt: 0.5 }}
+                    />
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">حالة الاشتراك</Typography>
+                    <Chip 
+                      label={selectedCompany.subscriptionStatus || 'Active'} 
+                      color={selectedCompany.subscriptionStatus === 'Active' ? 'success' : 'warning'}
+                      size="small"
+                      sx={{ fontWeight: 'bold', mt: 0.5 }}
+                    />
+                  </Box>
+                  {selectedCompany.expiryDate && (
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">تاريخ الانتهاء</Typography>
+                      <Typography variant="body1">
+                        {new Date(selectedCompany.expiryDate).toLocaleDateString('ar-EG')}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Paper>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button 
+            onClick={() => setDetailsDialogOpen(false)} 
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            }}
+          >
+            إغلاق
           </Button>
         </DialogActions>
       </Dialog>
