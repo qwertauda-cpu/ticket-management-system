@@ -67,11 +67,17 @@ class ApiService {
     const response = await fetch(`${API_URL}/super-admin/companies`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        companyName: data.companyName,
+        adminName: data.ownerName,
+        adminEmail: data.ownerEmail,
+        adminPassword: data.ownerPassword,
+      }),
     });
 
     if (!response.ok) {
-      throw new Error('فشل في إنشاء الشركة');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'فشل في إنشاء الشركة');
     }
 
     return response.json();
@@ -83,14 +89,25 @@ class ApiService {
     ownerEmail: string;
     ownerPassword?: string;
   }) {
+    const payload: any = {
+      companyName: data.companyName,
+      adminName: data.ownerName,
+      adminEmail: data.ownerEmail,
+    };
+    
+    if (data.ownerPassword) {
+      payload.adminPassword = data.ownerPassword;
+    }
+    
     const response = await fetch(`${API_URL}/super-admin/companies/${id}`, {
       method: 'PATCH',
       headers: this.getHeaders(),
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error('فشل في تحديث الشركة');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'فشل في تحديث الشركة');
     }
 
     return response.json();
