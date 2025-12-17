@@ -63,6 +63,8 @@ class ApiService {
     ownerName: string;
     ownerEmail: string;
     ownerPassword: string;
+    maxUsers?: number;
+    pricePerUser?: number;
   }) {
     const response = await fetch(`${API_URL}/super-admin/companies`, {
       method: 'POST',
@@ -72,6 +74,8 @@ class ApiService {
         adminName: data.ownerName,
         adminEmail: data.ownerEmail,
         adminPassword: data.ownerPassword,
+        maxUsers: data.maxUsers || 10,
+        pricePerUser: data.pricePerUser || 10000,
       }),
     });
 
@@ -88,6 +92,8 @@ class ApiService {
     ownerName: string;
     ownerEmail: string;
     ownerPassword?: string;
+    maxUsers?: number;
+    pricePerUser?: number;
   }) {
     const payload: any = {
       companyName: data.companyName,
@@ -97,6 +103,14 @@ class ApiService {
     
     if (data.ownerPassword) {
       payload.adminPassword = data.ownerPassword;
+    }
+    
+    if (data.maxUsers !== undefined) {
+      payload.maxUsers = data.maxUsers;
+    }
+    
+    if (data.pricePerUser !== undefined) {
+      payload.pricePerUser = data.pricePerUser;
     }
     
     const response = await fetch(`${API_URL}/super-admin/companies/${id}`, {

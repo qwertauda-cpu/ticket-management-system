@@ -32,6 +32,8 @@ export default function CompaniesPage() {
     ownerName: '',
     ownerEmail: '',
     ownerPassword: '',
+    maxUsers: 10,
+    pricePerUser: 10000,
   });
 
   useEffect(() => {
@@ -73,6 +75,8 @@ export default function CompaniesPage() {
       ownerName: company.ownerName,
       ownerEmail: company.ownerEmail,
       ownerPassword: '',
+      maxUsers: company.maxUsers || 10,
+      pricePerUser: company.pricePerUser || 10000,
     });
     setEditMode(true);
     setDialogOpen(true);
@@ -115,7 +119,14 @@ export default function CompaniesPage() {
   };
 
   const resetForm = () => {
-    setFormData({ companyName: '', ownerName: '', ownerEmail: '', ownerPassword: '' });
+    setFormData({ 
+      companyName: '', 
+      ownerName: '', 
+      ownerEmail: '', 
+      ownerPassword: '',
+      maxUsers: 10,
+      pricePerUser: 10000,
+    });
     setSelectedCompany(null);
     setEditMode(false);
   };
@@ -306,6 +317,26 @@ export default function CompaniesPage() {
             onChange={(e) => setFormData({ ...formData, ownerPassword: e.target.value })}
             required={!editMode}
             helperText={editMode ? 'اترك هذا الحقل فارغاً إذا كنت لا تريد تغيير كلمة المرور' : ''}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="الحد الأقصى للموظفين *"
+            type="number"
+            value={formData.maxUsers}
+            onChange={(e) => setFormData({ ...formData, maxUsers: parseInt(e.target.value) || 10 })}
+            required
+            sx={{ mb: 2 }}
+            helperText="الحد الأقصى لعدد الموظفين المسموح به"
+          />
+          <TextField
+            fullWidth
+            label="السعر لكل موظف (دينار عراقي) *"
+            type="number"
+            value={formData.pricePerUser}
+            onChange={(e) => setFormData({ ...formData, pricePerUser: parseInt(e.target.value) || 10000 })}
+            required
+            helperText="السعر بالدينار العراقي لكل موظف"
           />
         </DialogContent>
         <DialogActions sx={{ p: 2, gap: 1 }}>
