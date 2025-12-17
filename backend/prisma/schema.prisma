@@ -53,6 +53,7 @@ model Tenant {
   subscriptionEndDate   DateTime?
   maxUsers              Int       @default(10)
   maxTickets            Int       @default(1000)
+  pricePerUser          Float     @default(10000) // دينار عراقي لكل موظف
   isActive              Boolean   @default(true)
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
@@ -278,17 +279,47 @@ model Subscription {
 }
 
 model Invoice {
-  id        String    @id @default(uuid())
-  tenantId  String
-  amount    Float
-  status    String    @default("Unpaid")
-  dueDate   DateTime
-  paidAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id            String    @id @default(uuid())
+  tenantId      String
+  invoiceNumber String    @unique
+  amount        Float
+  userCount     Int       // عدد الموظفين في الفاتورة
+  description   String?
+  status        String    @default("Unpaid") // Unpaid, Paid, Overdue, Cancelled
+  dueDate       DateTime
+  paidAt        DateTime?
+  paymentMethod String?   // Cash, Bank Transfer, etc.
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
+  @@index([status])
   @@map("invoices")
+}
+
+// ============================================
+// Email Notifications
+// ============================================
+
+model EmailNotification {
+  id          String    @id @default(uuid())
+  tenantId    String?   // null for super admin emails
+  recipientEmail String
+  recipientName  String?
+  subject     String
+  body        String
+  type        String    // INVOICE_CREATED, INVOICE_PAID, USER_LIMIT_REACHED, SUBSCRIPTION_EXPIRING, etc.
+  status      String    @default("Pending") // Pending, Sent, Failed
+  sentAt      DateTime?
+  error       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([type])
+  @@map("email_notifications")
 }

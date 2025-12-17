@@ -26,6 +26,10 @@ export class UpdateCompanyDto {
   maxTickets?: number;
 
   @IsOptional()
+  @IsInt()
+  pricePerUser?: number;
+
+  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 }

@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../tenants/prisma.service';
 import { TenantContextService } from '../tenants/tenant-context.service';
+import { EmailService } from '../email/email.service';
 import { CreateUserDto } from './dto/create-user.dto';
 
 export type TenantUserView = {
@@ -18,6 +19,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tenantContext: TenantContextService,
+    private readonly emailService: EmailService,
   ) {}
 
   async listUsersInCurrentTenant(): Promise<TenantUserView[]> {
@@ -63,6 +65,30 @@ export class UsersService {
     if (!prismaClient.user?.findUnique || !prismaClient.tenantUser?.updateMany) {
       throw new Error(
         'Prisma Client is missing required models (User, TenantUser). Ensure prisma/schema.prisma defines them and run prisma generate.',
+      );
+    }
+
+    // ✅ Check subscription limit BEFORE creating user
+    const tenant = await prismaClient.tenant.findUnique({
+      where: { id: tenantId },
+      include: {
+        _count: {
+          select: { tenantUsers: true }
+        }
+      }
+    });
+
+    if (!tenant) {
+      throw new NotFoundException('Tenant not found');
+    }
+
+    // Check if adding this user would exceed the limit
+    if (tenant._count.tenantUsers >= tenant.maxUsers) {
+      // Send email notification
+      await this.emailService.sendUserLimitReachedEmail(tenantId);
+      
+      throw new BadRequestException(
+        `تم الوصول للحد الأقصى من الموظفين (${tenant.maxUsers}). يرجى الترقية للحصول على المزيد من المستخدمين.`
       );
     }
 

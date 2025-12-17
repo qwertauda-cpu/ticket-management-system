@@ -14,7 +14,13 @@ export interface Company {
   createdAt: string;
   subscriptionPlan?: string;
   subscriptionStatus?: string;
-  expiryDate?: string;
+  subscriptionStartDate?: string;
+  subscriptionEndDate?: string;
+  maxUsers?: number;
+  maxTickets?: number;
+  pricePerUser?: number;
+  userCount?: number;
+  ticketCount?: number;
 }
 
 export interface Subscription {
@@ -29,12 +35,19 @@ export interface Subscription {
 
 export interface Invoice {
   id: string;
-  tenantId: string;
-  subscriptionId: string;
+  invoiceNumber: string;
+  companyName: string;
+  ownerName: string;
+  ownerEmail: string;
   amount: number;
-  status: 'PENDING' | 'PAID' | 'OVERDUE';
+  userCount: number;
+  description?: string;
+  status: 'Unpaid' | 'Paid' | 'Overdue' | 'Cancelled';
   dueDate: string;
   paidAt?: string;
+  paymentMethod?: string;
+  notes?: string;
+  createdAt: string;
 }
 
 export interface DashboardStats {

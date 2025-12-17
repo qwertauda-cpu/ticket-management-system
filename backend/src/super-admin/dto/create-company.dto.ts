@@ -34,5 +34,9 @@ export class CreateCompanyDto {
   @IsNumber()
   @IsOptional()
   maxTickets?: number;
+
+  @IsNumber()
+  @IsOptional()
+  pricePerUser?: number; // دينار عراقي لكل موظف
 }
 

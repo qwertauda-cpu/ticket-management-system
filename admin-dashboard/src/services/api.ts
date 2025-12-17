@@ -167,7 +167,7 @@ class ApiService {
 
   // Invoices
   async getInvoices() {
-    const response = await fetch(`${API_URL}/super-admin/invoices`, {
+    const response = await fetch(`${API_URL}/super-admin/billing/invoices`, {
       headers: this.getHeaders(),
     });
 
@@ -178,16 +178,10 @@ class ApiService {
     return response.json();
   }
 
-  async createInvoice(data: {
-    tenantId: string;
-    subscriptionId: string;
-    amount: number;
-    dueDate: string;
-  }) {
-    const response = await fetch(`${API_URL}/super-admin/invoices`, {
+  async createInvoiceForTenant(tenantId: string) {
+    const response = await fetch(`${API_URL}/super-admin/billing/invoices/tenant/${tenantId}`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
@@ -197,15 +191,45 @@ class ApiService {
     return response.json();
   }
 
-  async updateInvoiceStatus(id: string, status: string) {
-    const response = await fetch(`${API_URL}/super-admin/invoices/${id}`, {
+  async updateInvoiceStatus(
+    invoiceId: string,
+    status: string,
+    paymentMethod?: string,
+    notes?: string
+  ) {
+    const response = await fetch(`${API_URL}/super-admin/billing/invoices/${invoiceId}`, {
       method: 'PATCH',
       headers: this.getHeaders(),
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, paymentMethod, notes }),
     });
 
     if (!response.ok) {
       throw new Error('فشل في تحديث حالة الفاتورة');
+    }
+
+    return response.json();
+  }
+
+  async deleteInvoice(invoiceId: string) {
+    const response = await fetch(`${API_URL}/super-admin/billing/invoices/${invoiceId}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error('فشل في حذف الفاتورة');
+    }
+
+    return response.json();
+  }
+
+  async getInvoiceStats() {
+    const response = await fetch(`${API_URL}/super-admin/billing/stats`, {
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error('فشل في جلب إحصائيات الفواتير');
     }
 
     return response.json();

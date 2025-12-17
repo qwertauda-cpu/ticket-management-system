@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import CompaniesPage from './pages/CompaniesPage';
 import SubscriptionsPage from './pages/SubscriptionsPage';
 import InvoicesPage from './pages/InvoicesPage';
+import BillingPage from './pages/BillingPage';
 import { api } from './services/api';
 
 const theme = createTheme(
@@ -76,6 +77,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <InvoicesPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/billing"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <BillingPage />
                 </Layout>
               </ProtectedRoute>
             }

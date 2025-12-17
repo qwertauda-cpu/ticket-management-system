@@ -9,9 +9,11 @@ import { UsersModule } from './users/users.module';
 import { SuperAdminModule } from './super-admin/super-admin.module';
 import { ZonesModule } from './zones/zones.module';
 import { TeamsModule } from './teams/teams.module';
+import { BillingModule } from './billing/billing.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
-  imports: [AuthModule, TenantsModule, PermissionsModule, UsersModule, TicketsModule, SuperAdminModule, ZonesModule, TeamsModule],
+  imports: [AuthModule, TenantsModule, PermissionsModule, UsersModule, TicketsModule, SuperAdminModule, ZonesModule, TeamsModule, BillingModule, EmailModule],
   controllers: [AppController],
   providers: [AppService],
 })

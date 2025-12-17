@@ -75,6 +75,7 @@ export class SuperAdminService {
           subscriptionEndDate: dto.subscriptionEndDate ? new Date(dto.subscriptionEndDate) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
           maxUsers: dto.maxUsers || 10,
           maxTickets: dto.maxTickets || 1000,
+          pricePerUser: dto.pricePerUser || 10000, // دينار عراقي
           isActive: true,
         },
       });
@@ -251,6 +252,7 @@ export class SuperAdminService {
         subscriptionEndDate: tenant.subscriptionEndDate,
         maxUsers: tenant.maxUsers,
         maxTickets: tenant.maxTickets,
+        pricePerUser: tenant.pricePerUser,
         isActive: tenant.isActive,
         userCount: tenant._count.tenantUsers,
         ticketCount: tenant._count.tickets,
@@ -300,6 +302,7 @@ export class SuperAdminService {
         subscriptionEndDate: data.subscriptionEndDate ? new Date(data.subscriptionEndDate) : undefined,
         maxUsers: data.maxUsers,
         maxTickets: data.maxTickets,
+        pricePerUser: data.pricePerUser,
         isActive: data.isActive,
         updatedAt: new Date(),
       },
@@ -409,13 +412,24 @@ export class SuperAdminService {
   }
 
   async createInvoice(data: any) {
+    // Generate invoice number
+    const invoiceCount = await this.prisma.invoice.count({
+      where: { tenantId: data.tenantId }
+    });
+    const invoiceNumber = `INV-${String(invoiceCount + 1).padStart(6, '0')}`;
+
     const invoice = await this.prisma.invoice.create({
       data: {
         tenantId: data.tenantId,
+        invoiceNumber,
         amount: data.amount,
-        status: data.status || 'Pending',
+        userCount: data.userCount || 1,
+        description: data.description,
+        status: data.status || 'Unpaid',
         dueDate: new Date(data.dueDate),
         paidAt: data.paidAt ? new Date(data.paidAt) : null,
+        paymentMethod: data.paymentMethod,
+        notes: data.notes,
       },
       include: {
         tenant: {

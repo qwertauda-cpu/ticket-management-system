@@ -45,6 +45,7 @@ export default function Layout({ children }: LayoutProps) {
     { text: 'الشركات', icon: <Business />, path: '/companies' },
     { text: 'الاشتراكات', icon: <Subscriptions />, path: '/subscriptions' },
     { text: 'الفواتير', icon: <Receipt />, path: '/invoices' },
+    { text: 'إدارة الفواتير', icon: <Receipt />, path: '/billing' },
   ];
 
   return (

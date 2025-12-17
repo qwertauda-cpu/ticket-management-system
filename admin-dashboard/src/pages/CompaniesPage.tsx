@@ -425,11 +425,11 @@ export default function CompaniesPage() {
                       sx={{ fontWeight: 'bold', mt: 0.5 }}
                     />
                   </Box>
-                  {selectedCompany.expiryDate && (
+                  {selectedCompany.subscriptionEndDate && (
                     <Box>
                       <Typography variant="body2" color="text.secondary">تاريخ الانتهاء</Typography>
                       <Typography variant="body1">
-                        {new Date(selectedCompany.expiryDate).toLocaleDateString('ar-EG')}
+                        {new Date(selectedCompany.subscriptionEndDate).toLocaleDateString('ar-EG')}
                       </Typography>
                     </Box>
                   )}
