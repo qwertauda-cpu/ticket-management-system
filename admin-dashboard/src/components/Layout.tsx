@@ -48,13 +48,14 @@ export default function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <AppBar
         position="fixed"
         sx={{
           width: `calc(100% - ${drawerWidth}px)`,
           ml: `${drawerWidth}px`,
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
         <Toolbar>
@@ -77,12 +78,13 @@ export default function Layout({ children }: LayoutProps) {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
+            height: '100vh',
           },
         }}
         variant="permanent"
         anchor="left"
       >
-        <Box sx={{ p: 3, textAlign: 'center' }}>
+        <Box sx={{ p: 3, textAlign: 'center', mt: 8 }}>
           <AdminPanelSettings sx={{ fontSize: 60, color: '#667eea' }} />
           <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
             السوبر أدمن
@@ -117,11 +119,10 @@ export default function Layout({ children }: LayoutProps) {
         sx={{
           flexGrow: 1,
           bgcolor: '#f5f5f5',
-          minHeight: '100vh',
+          height: '100vh',
           width: `calc(100% - ${drawerWidth}px)`,
-          ml: `${drawerWidth}px`,
+          overflow: 'auto',
           pt: '64px',
-          p: 0,
         }}
       >
         {children}

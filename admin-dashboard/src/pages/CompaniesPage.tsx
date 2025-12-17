@@ -192,7 +192,7 @@ export default function CompaniesPage() {
   ];
 
   return (
-    <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', p: 3 }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box>
           <Typography variant="h4" fontWeight="bold">

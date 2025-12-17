@@ -84,7 +84,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <Box sx={{ height: 'calc(100vh - 64px)', overflow: 'auto', p: 3 }}>
+    <Box sx={{ height: '100%', overflow: 'auto', p: 3 }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         لوحة المعلومات
       </Typography>

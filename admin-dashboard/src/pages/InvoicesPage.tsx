@@ -92,7 +92,7 @@ export default function InvoicesPage() {
   ];
 
   return (
-    <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', p: 3 }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         الفواتير
       </Typography>
