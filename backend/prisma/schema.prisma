@@ -1,0 +1,294 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Super Admin (Platform Owner)
+// ============================================
+
+model SuperAdmin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("super_admins")
+}
+
+// ============================================
+// User Management
+// ============================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenantUsers TenantUser[]
+
+  @@map("users")
+}
+
+model Tenant {
+  id                    String    @id @default(uuid())
+  name                  String
+  companyName           String    @default("Demo Company")
+  subscriptionPlan      String    @default("Basic")
+  subscriptionStatus    String    @default("Active")
+  subscriptionStartDate DateTime?
+  subscriptionEndDate   DateTime?
+  maxUsers              Int       @default(10)
+  maxTickets            Int       @default(1000)
+  isActive              Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  tenantUsers            TenantUser[]
+  tickets                Ticket[]
+  permissions            Permission[]
+  tenantUserPermissions  TenantUserPermission[]
+  subscriptions          Subscription[]
+  invoices               Invoice[]
+  zones                  Zone[]
+  teams                  Team[]
+  teamMembers            TeamMember[]
+
+  @@map("tenants")
+}
+
+model TenantUser {
+  id        String   @id @default(uuid())
+  tenantId  String
+  userId    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant      Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissions TenantUserPermission[]
+  teamMembers TeamMember[]
+
+  @@unique([tenantId, userId])
+  @@map("tenant_users")
+}
+
+// ============================================
+// Permissions
+// ============================================
+
+model Permission {
+  id          String   @id @default(uuid())
+  tenantId    String
+  key         String
+  description String?
+  createdAt   DateTime @default(now())
+
+  tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantUserPermissions TenantUserPermission[]
+
+  @@unique([tenantId, key])
+  @@map("permissions")
+}
+
+model TenantUserPermission {
+  id           String   @id @default(uuid())
+  tenantId     String
+  tenantUserId String
+  permissionId String
+  createdAt    DateTime @default(now())
+
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantUser   TenantUser @relation(fields: [tenantUserId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantUserId, permissionId])
+  @@map("tenant_user_permissions")
+}
+
+// ============================================
+// Zones & Teams
+// ============================================
+
+model Zone {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+  @@map("zones")
+}
+
+model Team {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  members TeamMember[]
+
+  @@unique([tenantId, name])
+  @@map("teams")
+}
+
+model TeamMember {
+  id           String   @id @default(uuid())
+  tenantId     String
+  teamId       String
+  tenantUserId String
+  createdAt    DateTime @default(now())
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  team       Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  tenantUser TenantUser @relation(fields: [tenantUserId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, tenantUserId])
+  @@map("team_members")
+}
+
+// ============================================
+// Tickets
+// ============================================
+
+model Ticket {
+  id            String    @id @default(uuid())
+  tenantId      String
+  ticketNumber  String    @unique
+  ticketType    String
+  subscriberName String?
+  phone         String
+  zone          String
+  customIssue   String?
+  description   String?
+  isNationalSla Boolean   @default(false)
+  priority      String?
+  status        String
+  assigneeType  String?
+  assigneeId    String?
+  scheduledAt   DateTime?
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  qaStatus      String?
+  qaNotes       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  tenant  Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  history TicketHistory[]
+  comments TicketComment[]
+  attachments TicketAttachment[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, isNationalSla])
+  @@index([tenantId, createdAt])
+  @@map("tickets")
+}
+
+model TicketHistory {
+  id          String   @id @default(uuid())
+  tenantId    String
+  ticketId    String
+  action      String
+  field       String?
+  oldValue    String?
+  newValue    String?
+  performedBy String?
+  createdAt   DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+  @@map("ticket_history")
+}
+
+model TicketComment {
+  id           String   @id @default(uuid())
+  tenantId     String
+  ticketId     String
+  userId       String
+  userType     String   @default("user") // "user" or "super_admin"
+  comment      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+  @@map("ticket_comments")
+}
+
+model TicketAttachment {
+  id           String   @id @default(uuid())
+  tenantId     String
+  ticketId     String
+  fileName     String
+  fileType     String
+  fileSize     Int
+  fileUrl      String
+  uploadedBy   String
+  createdAt    DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+  @@map("ticket_attachments")
+}
+
+// ============================================
+// Subscriptions & Billing
+// ============================================
+
+model Subscription {
+  id        String   @id @default(uuid())
+  tenantId  String
+  planName  String
+  price     Float
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("Active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("subscriptions")
+}
+
+model Invoice {
+  id        String    @id @default(uuid())
+  tenantId  String
+  amount    Float
+  status    String    @default("Unpaid")
+  dueDate   DateTime
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("invoices")
+}
