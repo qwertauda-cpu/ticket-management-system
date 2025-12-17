@@ -4,12 +4,13 @@ import { SuperAdminController } from './super-admin.controller';
 import { SuperAdminService } from './super-admin.service';
 import { SuperAdminGuard } from './super-admin.guard';
 import { AuthModule } from '../auth/auth.module';
+import { requireEnv } from '../auth/auth.util';
 
 @Module({
   imports: [
     AuthModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'your-secret-key',
+      secret: requireEnv('JWT_SECRET'),
       signOptions: { expiresIn: '7d' },
     }),
   ],
