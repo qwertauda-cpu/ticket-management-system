@@ -56,7 +56,7 @@ async function main() {
 
     // 10. Delete all email notifications
     console.log('\n🗑️  Deleting email notifications...');
-    const deletedEmails = await prisma.emailNotification.deleteMany({});
+    const deletedEmails = await (prisma as any).emailNotification.deleteMany({});
     console.log(`   ✅ Deleted ${deletedEmails.count} email notifications`);
 
     // 11. Delete all tenants (companies)
