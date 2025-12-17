@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار Frontend</title>
+    <style>
+        body {
+            font-family: 'Cairo', Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-result {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { border-right: 4px solid #4caf50; }
+        .error { border-right: 4px solid #f44336; }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #1e40af; }
+        #results { margin-top: 20px; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 اختبار Frontend التفاعلي</h1>
+    
+    <div>
+        <button onclick="testLogin()">1️⃣ اختبار Login</button>
+        <button onclick="testTickets()">2️⃣ اختبار Tickets</button>
+        <button onclick="testTicketDetails()">3️⃣ اختبار Ticket Details</button>
+        <button onclick="testFullLifecycle()">4️⃣ اختبار دورة الحياة الكاملة</button>
+        <button onclick="clearResults()">🗑️ مسح النتائج</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        let token = null;
+        let testTicketId = null;
+
+        function addResult(title, success, details) {
+            const div = document.createElement('div');
+            div.className = `test-result ${success ? 'success' : 'error'}`;
+            div.innerHTML = `
+                <h3>${success ? '✅' : '❌'} ${title}</h3>
+                <pre>${JSON.stringify(details, null, 2)}</pre>
+            `;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testLogin() {
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'owner@example.com',
+                        password: 'password123'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.accessToken) {
+                    token = data.accessToken;
+                    addResult('Login', true, {
+                        user: data.user.name,
+                        email: data.user.email,
+                        isOwner: data.user.isOwner
+                    });
+                } else {
+                    addResult('Login', false, data);
+                }
+            } catch (error) {
+                addResult('Login', false, { error: error.message });
+            }
+        }
+
+        async function testTickets() {
+            if (!token) {
+                alert('يجب تسجيل الدخول أولاً!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tickets`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    testTicketId = data.items[0]?.id;
+                    addResult('Get Tickets', true, {
+                        total: data.total,
+                        count: data.items.length,
+                        firstTicket: data.items[0]?.ticketNumber
+                    });
+                } else {
+                    addResult('Get Tickets', false, data);
+                }
+            } catch (error) {
+                addResult('Get Tickets', false, { error: error.message });
+            }
+        }
+
+        async function testTicketDetails() {
+            if (!token || !testTicketId) {
+                alert('يجب تسجيل الدخول وجلب التذاكر أولاً!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tickets/${testTicketId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult('Get Ticket Details', true, {
+                        ticketNumber: data.ticketNumber,
+                        status: data.status,
+                        phone: data.phone,
+                        zone: data.zone
+                    });
+                } else {
+                    addResult('Get Ticket Details', false, data);
+                }
+            } catch (error) {
+                addResult('Get Ticket Details', false, { error: error.message });
+            }
+        }
+
+        async function testFullLifecycle() {
+            if (!token || !testTicketId) {
+                alert('يجب تسجيل الدخول وجلب التذاكر أولاً!');
+                return;
+            }
+
+            const actions = [
+                { name: 'Assign', url: `/tickets/${testTicketId}/assign`, body: { assigneeType: 'technician', assigneeId: 'tech-test' } },
+                { name: 'Start', url: `/tickets/${testTicketId}/start` },
+                { name: 'Pause', url: `/tickets/${testTicketId}/pause` },
+                { name: 'Resume', url: `/tickets/${testTicketId}/resume` },
+                { name: 'Finish', url: `/tickets/${testTicketId}/finish` },
+                { name: 'QA Approve', url: `/tickets/${testTicketId}/qa/approve`, body: { qaNotes: 'اختبار تلقائي' } }
+            ];
+
+            for (const action of actions) {
+                try {
+                    const response = await fetch(`${API_URL}${action.url}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: action.body ? JSON.stringify(action.body) : undefined
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        addResult(action.name, true, {
+                            status: data.status,
+                            qaStatus: data.qaStatus
+                        });
+                    } else {
+                        addResult(action.name, false, data);
+                    }
+
+                    // Wait a bit between actions
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (error) {
+                    addResult(action.name, false, { error: error.message });
+                    break;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

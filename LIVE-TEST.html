@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 اختبار مباشر - نظام إدارة التذاكر</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100%;
+            margin: 5px 0;
+            transition: all 0.3s;
+            font-family: 'Cairo', Arial, sans-serif;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border-right: 4px solid #667eea;
+        }
+        .result.success {
+            border-right-color: #10b981;
+            background: #f0fdf4;
+        }
+        .result.error {
+            border-right-color: #ef4444;
+            background: #fef2f2;
+        }
+        .result h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin: 5px;
+        }
+        .status-scheduled { background: #dbeafe; color: #1e40af; }
+        .status-assigned { background: #fef3c7; color: #92400e; }
+        .status-in-progress { background: #d1fae5; color: #065f46; }
+        .status-paused { background: #fed7aa; color: #9a3412; }
+        .status-pending-qa { background: #e0e7ff; color: #3730a3; }
+        .status-done { background: #d1fae5; color: #065f46; }
+        .info-box {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .info-box h3 {
+            color: #0369a1;
+            margin-bottom: 10px;
+        }
+        #results {
+            margin-top: 30px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 اختبار مباشر - نظام إدارة التذاكر</h1>
+            <p>اختبر جميع الميزات الجديدة بضغطة زر!</p>
+        </div>
+
+        <div class="info-box">
+            <h3>📋 معلومات الموقع:</h3>
+            <p><strong>Frontend:</strong> <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></p>
+            <p><strong>Backend:</strong> http://localhost:3000</p>
+            <p><strong>Email:</strong> owner@example.com</p>
+            <p><strong>Password:</strong> password123</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>1️⃣ تسجيل الدخول</h3>
+                <button onclick="testLogin()">🔐 Login</button>
+                <div id="login-status"></div>
+            </div>
+
+            <div class="card">
+                <h3>2️⃣ إنشاء تذكرة جديدة</h3>
+                <button onclick="createNewTicket()" id="create-btn" disabled>➕ إنشاء تذكرة</button>
+                <div id="create-status"></div>
+            </div>
+
+            <div class="card">
+                <h3>3️⃣ دورة الحياة الكاملة</h3>
+                <button onclick="testFullLifecycle()" id="lifecycle-btn" disabled>🔄 اختبار كامل</button>
+                <div id="lifecycle-status"></div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>⚡ إجراءات سريعة</h3>
+                <button onclick="testAssign()" id="assign-btn" disabled>👤 تعيين</button>
+                <button onclick="testStart()" id="start-btn" disabled>▶️ بدء</button>
+                <button onclick="testPause()" id="pause-btn" disabled>⏸️ إيقاف</button>
+                <button onclick="testResume()" id="resume-btn" disabled>▶️ استئناف</button>
+                <button onclick="testFinish()" id="finish-btn" disabled>⏹️ إنهاء</button>
+            </div>
+
+            <div class="card">
+                <h3>✅ مراجعة الجودة (QA)</h3>
+                <button onclick="testQAApprove()" id="qa-approve-btn" disabled>✅ قبول</button>
+                <button onclick="testQAReject()" id="qa-reject-btn" disabled>❌ رفض</button>
+            </div>
+
+            <div class="card">
+                <h3>📊 عرض البيانات</h3>
+                <button onclick="getTickets()" id="list-btn" disabled>📋 عرض التذاكر</button>
+                <button onclick="getTicketDetails()" id="details-btn" disabled>🔍 تفاصيل التذكرة</button>
+            </div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        let token = null;
+        let currentTicketId = null;
+
+        function addResult(title, success, data, containerId = 'results') {
+            const div = document.createElement('div');
+            div.className = `result ${success ? 'success' : 'error'}`;
+            div.innerHTML = `
+                <h4>${success ? '✅' : '❌'} ${title}</h4>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            document.getElementById(containerId).appendChild(div);
+            document.getElementById(containerId).scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        function updateButtons(enabled) {
+            ['create-btn', 'lifecycle-btn', 'list-btn', 'details-btn', 'assign-btn', 'start-btn', 
+             'pause-btn', 'resume-btn', 'finish-btn', 'qa-approve-btn', 'qa-reject-btn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.disabled = !enabled;
+            });
+        }
+
+        async function testLogin() {
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'owner@example.com',
+                        password: 'password123'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.accessToken) {
+                    token = data.accessToken;
+                    document.getElementById('login-status').innerHTML = 
+                        '<div class="status-badge status-done">✅ تم تسجيل الدخول</div>';
+                    updateButtons(true);
+                    addResult('تسجيل الدخول', true, {
+                        user: data.user.name,
+                        email: data.user.email,
+                        isOwner: data.user.isOwner,
+                        permissions: data.user.permissions
+                    });
+                } else {
+                    addResult('تسجيل الدخول', false, data);
+                }
+            } catch (error) {
+                addResult('تسجيل الدخول', false, { error: error.message });
+            }
+        }
+
+        async function createNewTicket() {
+            if (!token) {
+                alert('يجب تسجيل الدخول أولاً!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tickets`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ticketType: 'FTTH_NEW',
+                        phone: '07701234567',
+                        zone: 'Baghdad - Test',
+                        description: 'تذكرة اختبار من الواجهة التفاعلية',
+                        isNationalSla: false,
+                        action: 'schedule',
+                        scheduledAt: new Date(Date.now() + 86400000).toISOString()
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentTicketId = data.id;
+                    document.getElementById('create-status').innerHTML = 
+                        `<div class="status-badge status-scheduled">📋 ${data.ticketNumber}</div>`;
+                    addResult('إنشاء تذكرة جديدة', true, {
+                        ticketNumber: data.ticketNumber,
+                        status: data.status,
+                        phone: data.phone,
+                        zone: data.zone
+                    });
+                } else {
+                    addResult('إنشاء تذكرة', false, data);
+                }
+            } catch (error) {
+                addResult('إنشاء تذكرة', false, { error: error.message });
+            }
+        }
+
+        async function testFullLifecycle() {
+            if (!token) {
+                alert('يجب تسجيل الدخول أولاً!');
+                return;
+            }
+
+            // Create new ticket first
+            await createNewTicket();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const actions = [
+                { name: 'تعيين', fn: testAssign },
+                { name: 'بدء', fn: testStart },
+                { name: 'إيقاف', fn: testPause },
+                { name: 'استئناف', fn: testResume },
+                { name: 'إنهاء', fn: testFinish },
+                { name: 'قبول QA', fn: testQAApprove }
+            ];
+
+            for (const action of actions) {
+                await action.fn();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+            document.getElementById('lifecycle-status').innerHTML = 
+                '<div class="status-badge status-done">✅ اكتملت دورة الحياة</div>';
+        }
+
+        async function testAssign() {
+            if (!currentTicketId) {
+                alert('يجب إنشاء تذكرة أولاً!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tickets/${currentTicketId}/assign`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        assigneeType: 'technician',
+                        assigneeId: 'tech-web-test'
+                    })
+                });
+
+                const data = await response.json();
+                addResult('تعيين التذكرة', response.ok, {
+                    status: data.status,
+                    assigneeType: data.assigneeType,
+                    assigneeId: data.assigneeId
+                });
+            } catch (error) {
+                addResult('تعيين', false, { error: error.message });
+            }
+        }
+
+        async function testStart() {
+            if (!currentTicketId) return;
+            try {
+                const response = await fetch(`${API_URL}/tickets/${currentTicketId}/start`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                addResult('بدء العمل', response.ok, { status: data.status, startedAt: data.startedAt });
+            } catch (error) {
+                addResult('بدء', false, { error: error.message });
+            }
+        }
+
+        async function testPause() {
+            if (!currentTicketId) return;
+            try {
+                const response = await fetch(`${API_URL}/tickets/${currentTicketId}/pause`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                addResult('إيقاف مؤقت', response.ok, { status: data.status });
+            } catch (error) {
+                addResult('إيقاف', false, { error: error.message });
+            }
+        }
+
+        async function testResume() {
+            if (!currentTicketId) return;
+            try {
+                const response = await fetch(`${API_URL}/tickets/${currentTicketId}/resume`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                addResult('استئناف العمل', response.ok, { status: data.status });
+            } catch (error) {
+                addResult('استئناف', false, { error: error.message });
+            }
+        }
+
+        async function testFinish() {
+            if (!currentTicketId) return;
+            try {
+                const response = await fetch(`${API_URL}/tickets/${currentTicketId}/finish`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                addResult('إنهاء العمل', response.ok, { status: data.status, finishedAt: data.finishedAt });
+            } catch (error) {
+                addResult('إنهاء', false, { error: error.message });
+            }
+        }
+
+        async function testQAApprove() {
+            if (!currentTicketId) return;
+            try {
+                const response = await fetch(`${API_URL}/tickets/${currentTicketId}/qa/approve`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ qaNotes: 'تم الفحص بنجاح - اختبار تفاعلي' })
+                });
+                const data = await response.json();
+                addResult('قبول QA', response.ok, { 
+                    status: data.status, 
+                    qaStatus: data.qaStatus,
+                    qaNotes: data.qaNotes 
+                });
+            } catch (error) {
+                addResult('قبول QA', false, { error: error.message });
+            }
+        }
+
+        async function testQAReject() {
+            if (!currentTicketId) return;
+            try {
+                const response = await fetch(`${API_URL}/tickets/${currentTicketId}/qa/reject`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ qaNotes: 'يحتاج إعادة عمل - اختبار تفاعلي' })
+                });
+                const data = await response.json();
+                addResult('رفض QA', response.ok, { 
+                    status: data.status, 
+                    qaStatus: data.qaStatus,
+                    qaNotes: data.qaNotes 
+                });
+            } catch (error) {
+                addResult('رفض QA', false, { error: error.message });
+            }
+        }
+
+        async function getTickets() {
+            if (!token) return;
+            try {
+                const response = await fetch(`${API_URL}/tickets`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                addResult('عرض التذاكر', response.ok, {
+                    total: data.total,
+                    count: data.items.length,
+                    tickets: data.items.map(t => ({
+                        ticketNumber: t.ticketNumber,
+                        status: t.status,
+                        phone: t.phone
+                    }))
+                });
+            } catch (error) {
+                addResult('عرض التذاكر', false, { error: error.message });
+            }
+        }
+
+        async function getTicketDetails() {
+            if (!currentTicketId) {
+                alert('يجب إنشاء أو اختيار تذكرة أولاً!');
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/tickets/${currentTicketId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                addResult('تفاصيل التذكرة', response.ok, data);
+            } catch (error) {
+                addResult('تفاصيل التذكرة', false, { error: error.message });
+            }
+        }
+    </script>
+</body>
+</html>
+
