@@ -127,6 +127,79 @@ export class SuperAdminService {
         },
       });
 
+      // ========================================
+      // إنشاء البيانات الأساسية للشركة
+      // ========================================
+
+      // 1. إنشاء جميع الأذونات
+      const permissions = [
+        { key: 'tickets:read', description: 'View tickets' },
+        { key: 'tickets:create', description: 'Create tickets' },
+        { key: 'tickets:update', description: 'Update tickets' },
+        { key: 'tickets:delete', description: 'Delete tickets' },
+        { key: 'tickets:assign', description: 'Assign tickets' },
+        { key: 'tickets:start', description: 'Start working on tickets' },
+        { key: 'tickets:pause', description: 'Pause tickets' },
+        { key: 'tickets:finish', description: 'Finish tickets' },
+        { key: 'tickets:qa', description: 'QA tickets' },
+        { key: 'users:read', description: 'View users' },
+        { key: 'users:create', description: 'Create users' },
+        { key: 'users:update', description: 'Update users' },
+        { key: 'users:delete', description: 'Delete users' },
+        { key: 'settings:read', description: 'View settings' },
+        { key: 'settings:update', description: 'Update settings' },
+        { key: 'zones:read', description: 'View zones' },
+        { key: 'zones:create', description: 'Create zones' },
+        { key: 'zones:update', description: 'Update zones' },
+        { key: 'zones:delete', description: 'Delete zones' },
+        { key: 'teams:read', description: 'View teams' },
+        { key: 'teams:create', description: 'Create teams' },
+        { key: 'teams:update', description: 'Update teams' },
+        { key: 'teams:delete', description: 'Delete teams' },
+      ];
+
+      const createdPermissions: any[] = [];
+      for (const perm of permissions) {
+        const permission = await tx.permission.create({
+          data: {
+            tenantId: tenant.id,
+            key: perm.key,
+            description: perm.description,
+          },
+        });
+        createdPermissions.push(permission);
+      }
+
+      // 2. إنشاء مناطق افتراضية
+      const defaultZones = ['المنطقة الشمالية', 'المنطقة الجنوبية', 'المنطقة الشرقية', 'المنطقة الغربية', 'المنطقة الوسطى'];
+      for (const zoneName of defaultZones) {
+        await tx.zone.create({
+          data: {
+            tenantId: tenant.id,
+            name: zoneName,
+            isActive: true,
+          },
+        });
+      }
+
+      // 3. إنشاء فريق افتراضي
+      const defaultTeam = await tx.team.create({
+        data: {
+          tenantId: tenant.id,
+          name: 'الفريق الفني الأول',
+          isActive: true,
+        },
+      });
+
+      // إضافة المالك كعضو في الفريق
+      await tx.teamMember.create({
+        data: {
+          tenantId: tenant.id,
+          teamId: defaultTeam.id,
+          tenantUserId: tenantUser.id,
+        },
+      });
+
       return { tenant, user, tenantUser, subscription };
     });
 
