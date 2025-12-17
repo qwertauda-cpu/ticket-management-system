@@ -193,8 +193,8 @@ export default function CompaniesPage() {
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 3 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Box>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={3}>
+        <Box flex={1}>
           <Typography variant="h4" fontWeight="bold">
             إدارة الشركات
           </Typography>
@@ -215,6 +215,8 @@ export default function CompaniesPage() {
             px: 3,
             py: 1.5,
             fontSize: '1rem',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
         >
           إضافة شركة جديدة
