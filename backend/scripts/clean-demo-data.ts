@@ -54,10 +54,14 @@ async function main() {
     const deletedInvoices = await prisma.invoice.deleteMany({});
     console.log(`   ✅ Deleted ${deletedInvoices.count} invoices`);
 
-    // 10. Delete all email notifications
+    // 10. Delete all email notifications (if table exists)
     console.log('\n🗑️  Deleting email notifications...');
-    const deletedEmails = await (prisma as any).emailNotification.deleteMany({});
-    console.log(`   ✅ Deleted ${deletedEmails.count} email notifications`);
+    try {
+      const deletedEmails = await (prisma as any).emailNotification?.deleteMany({});
+      console.log(`   ✅ Deleted ${deletedEmails?.count || 0} email notifications`);
+    } catch (error: any) {
+      console.log(`   ⚠️  Email notifications table not found or already empty: ${error.message}`);
+    }
 
     // 11. Delete all tenants (companies)
     console.log('\n🗑️  Deleting tenants (companies)...');
