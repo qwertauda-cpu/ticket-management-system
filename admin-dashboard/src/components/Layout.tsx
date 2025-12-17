@@ -48,26 +48,26 @@ export default function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', direction: 'rtl' }}>
       <AppBar
         position="fixed"
         sx={{
           width: `calc(100% - ${drawerWidth}px)`,
-          ml: `${drawerWidth}px`,
+          mr: `${drawerWidth}px`,
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
         <Toolbar>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            لوحة تحكم السوبر أدمن
-          </Typography>
-          <Typography variant="body2" sx={{ mr: 2 }}>
-            {user?.name}
-          </Typography>
           <IconButton color="inherit" onClick={handleLogout}>
             <Logout />
           </IconButton>
+          <Typography variant="body2" sx={{ ml: 2 }}>
+            {user?.name}
+          </Typography>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, textAlign: 'right' }}>
+            لوحة تحكم السوبر أدمن
+          </Typography>
         </Toolbar>
       </AppBar>
 
@@ -82,7 +82,7 @@ export default function Layout({ children }: LayoutProps) {
           },
         }}
         variant="permanent"
-        anchor="left"
+        anchor="right"
       >
         <Box sx={{ p: 3, textAlign: 'center', mt: 8 }}>
           <AdminPanelSettings sx={{ fontSize: 60, color: '#667eea' }} />
@@ -100,7 +100,7 @@ export default function Layout({ children }: LayoutProps) {
                 sx={{
                   '&.Mui-selected': {
                     backgroundColor: '#667eea20',
-                    borderRight: '4px solid #667eea',
+                    borderLeft: '4px solid #667eea',
                   },
                 }}
               >
